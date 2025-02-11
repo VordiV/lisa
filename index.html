@@ -9,15 +9,20 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #ffe6e6;
-            padding: 20px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 600px;
-            margin: auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: scale(0.9);
+            animation: fadeIn 0.5s forwards;
         }
         input, button {
             margin-top: 10px;
@@ -30,18 +35,31 @@
         .message {
             color: red;
         }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .correct {
+            color: green;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Unser Valentins-Quiz</h2>
+        <p id="progress"></p>
         <p id="question"></p>
-        <input type="text" id="answer" placeholder="Deine Antwort...">
+        <input type="text" id="answer" placeholder="Deine Antwort..." onkeypress="handleKeyPress(event)">
         <button onclick="checkAnswer()">Weiter</button>
         <p class="message" id="message"></p>
         <div id="final-message" class="hidden">
-            <h3>Ich liebe dich, Lisa! ❤️</h3>
-            <p>Du bist das Beste, was mir je passiert ist. Ich bin so dankbar für jeden Moment mit dir!</p>
+            <h3>Herzlichen Glückwunsch! 🎉</h3>
+            <p>Super Schatz, du hast es geschafft. Du hast das Quiz mit allen Fragen korrekt beantwortet.</p>
+            <p>Ich wollte dir damit nochmal zeigen, dass du mir besonders wichtig bist und ich dich über alles liebe.</p>
+            <p>Du bist meine absolute Traumfrau und der perfekte Partner an meiner Seite. Danke für alles, was du tust und was du gibst.</p>
+            <p>Ich liebe dich und habe mir eine Kleinigkeit erlaubt. Schau hier:</p>
             <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Hier ist eine kleine Überraschung für dich</a>
         </div>
     </div>
@@ -70,6 +88,7 @@
             document.getElementById("question").innerText = questions[currentQuestion].q;
             document.getElementById("answer").value = "";
             document.getElementById("message").innerText = "";
+            document.getElementById("progress").innerText = `Frage ${currentQuestion + 1} von ${questions.length}`;
         }
 
         function checkAnswer() {
@@ -77,14 +96,25 @@
             const correctAnswers = questions[currentQuestion].a;
 
             if (correctAnswers.includes(userAnswer)) {
-                currentQuestion++;
-                if (currentQuestion < questions.length) {
-                    displayQuestion();
-                } else {
-                    document.querySelector(".container").innerHTML = document.getElementById("final-message").innerHTML;
-                }
+                document.getElementById("message").innerText = "Richtig! ✅";
+                document.getElementById("message").classList.add("correct");
+                setTimeout(() => {
+                    currentQuestion++;
+                    if (currentQuestion < questions.length) {
+                        displayQuestion();
+                    } else {
+                        document.querySelector(".container").innerHTML = document.getElementById("final-message").innerHTML;
+                    }
+                }, 1000);
             } else {
                 document.getElementById("message").innerText = "Hmm... versuch es nochmal!";
+                document.getElementById("message").classList.remove("correct");
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
             }
         }
 
