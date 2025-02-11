@@ -13,9 +13,11 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 10px;
         }
         .container {
-            max-width: 600px;
+            max-width: 90%;
+            width: 90%; max-width: 600px;
             background: white;
             padding: 20px;
             border-radius: 10px;
@@ -27,13 +29,25 @@
         input, button {
             margin-top: 10px;
             padding: 10px;
-            width: 80%;
+            width: 100%;
+            font-size: 16px;
+            display: block;
+            box-sizing: border-box;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
         }
         .hidden {
             display: none;
         }
         .message {
             color: red;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+            transition: opacity 0.5s;
         }
         @keyframes fadeIn {
             to {
@@ -44,24 +58,45 @@
         .correct {
             color: green;
         }
+        #progress-bar {
+            width: 100%;
+            background: #ddd;
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #progress {
+            height: 100%;
+            width: 0%;
+            background: #4caf50;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="start-screen">
         <h2>Unser Valentins-Quiz</h2>
-        <p id="progress"></p>
-        <p id="question"></p>
-        <input type="text" id="answer" placeholder="Deine Antwort..." onkeypress="handleKeyPress(event)">
-        <button onclick="checkAnswer()">Weiter</button>
-        <p class="message" id="message"></p>
-        <div id="final-message" class="hidden">
-            <h3>Herzlichen Glückwunsch! 🎉</h3>
-            <p>Super Schatz, du hast es geschafft. Du hast das Quiz mit allen Fragen korrekt beantwortet.</p>
-            <p>Ich wollte dir damit nochmal zeigen, dass du mir besonders wichtig bist und ich dich über alles liebe.</p>
-            <p>Du bist meine absolute Traumfrau und der perfekte Partner an meiner Seite. Danke für alles, was du tust und was du gibst.</p>
-            <p>Ich liebe dich und habe mir eine Kleinigkeit erlaubt. Schau hier:</p>
-            <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Hier ist eine kleine Überraschung für dich</a>
+        <p>Ein kleines Quiz über uns! Bist du bereit?</p>
+        <button onclick="startQuiz()">Quiz starten</button>
+    </div>
+    <div class="container hidden" id="quiz-container">
+        <div id="progress-bar">
+            <div id="progress"></div>
         </div>
+        <p id="question" style="font-size: 24px; font-weight: bold;"></p>
+        <input type="text" id="answer" placeholder="Deine Antwort..." onkeypress="handleKeyPress(event)">
+        <div class="button-container">
+            <button onclick="goBack()" id="backButton">Zurück</button>
+            <button onclick="checkAnswer()" id="nextButton">Weiter</button>
+        </div>
+        <p class="message" id="message"></p>
+    </div>
+    <div class="container hidden" id="final-message">
+        <h3>Herzlichen Glückwunsch! 🎉</h3>
+        <p>Super Schatz, du hast es geschafft. Du hast das Quiz mit allen Fragen korrekt beantwortet.</p>
+        <p>Ich wollte dir damit nochmal zeigen, dass du mir besonders wichtig bist und ich dich über alles liebe. Du bist meine absolute Traumfrau und der perfekte Partner an meiner Seite. Danke für alles, was du tust und was du gibst.</p>
+        <p>Ich liebe dich und habe mir eine Kleinigkeit erlaubt. Schau hier:</p>
+        <a href="https://youtube.com/shorts/SRQJp904mjE" target="_blank">Hier ist eine kleine Überraschung für dich</a>
     </div>
 
     <script>
@@ -80,35 +115,72 @@
             { q: "Wie heißt unser erstes Baby?", a: ["trudi"] },
             { q: "Wie unser zweites Baby?", a: ["matilda"] },
             { q: "Und unser letztes Baby?", a: ["ferdinand"] },
+            { q: "Warum liebe ich dich wohl so sehr?", a: [] } // Offene Frage, keine spezifische Antwort erforderlich
         ];
         
         let currentQuestion = 0;
+        let attempts = 0;
 
+        function startQuiz() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-container').classList.remove('hidden');
+            displayQuestion();
+        }
+        
         function displayQuestion() {
+            if (currentQuestion >= questions.length) {
+                showFinalMessage();
+                return;
+            }
             document.getElementById("question").innerText = questions[currentQuestion].q;
             document.getElementById("answer").value = "";
             document.getElementById("message").innerText = "";
-            document.getElementById("progress").innerText = `Frage ${currentQuestion + 1} von ${questions.length}`;
+            document.getElementById("progress").style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
         }
 
         function checkAnswer() {
+            if (currentQuestion >= questions.length) return;
+
+            const inputField = document.getElementById("answer");
             const userAnswer = document.getElementById("answer").value.toLowerCase().trim();
             const correctAnswers = questions[currentQuestion].a;
 
-            if (correctAnswers.includes(userAnswer)) {
+            // Wenn es sich um die offene Frage handelt, zeige die finale Nachricht
+            if (currentQuestion === questions.length - 1) {
+                showFinalMessage();
+                return;
+            }
+
+            if (correctAnswers.length > 0 && correctAnswers.some(ans => ans.toLowerCase().trim() === userAnswer)) {
                 document.getElementById("message").innerText = "Richtig! ✅";
+                inputField.style.borderColor = "green";
                 document.getElementById("message").classList.add("correct");
                 setTimeout(() => {
+                    inputField.style.borderColor = "";
+                    document.getElementById("message").innerText = "";
+                    document.getElementById("message").classList.remove("correct");
                     currentQuestion++;
-                    if (currentQuestion < questions.length) {
-                        displayQuestion();
-                    } else {
-                        document.querySelector(".container").innerHTML = document.getElementById("final-message").innerHTML;
-                    }
-                }, 1000);
+                    displayQuestion();
+                }, 1500);
+                attempts = 0;
             } else {
-                document.getElementById("message").innerText = "Hmm... versuch es nochmal!";
-                document.getElementById("message").classList.remove("correct");
+                attempts++;
+                document.getElementById("message").innerText = attempts >= 3 ? `Die richtige Antwort ist: ${correctAnswers.length > 0 ? correctAnswers[0] : 'Keine Antwort gefunden'}` : 'Falsche Antwort, versuche es noch einmal!';
+                inputField.style.borderColor = "red";
+            }
+        }
+
+        function showFinalMessage() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('final-message').classList.remove('hidden');
+        }
+
+        function goBack() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            } else {
+                document.getElementById("message").innerText = "Du bist bereits bei der ersten Frage!";
             }
         }
 
@@ -117,8 +189,6 @@
                 checkAnswer();
             }
         }
-
-        displayQuestion();
     </script>
 </body>
 </html>
