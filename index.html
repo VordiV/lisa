@@ -32,7 +32,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
         }
-        button {
+        input, button {
             margin-top: 10px;
             padding: 10px;
             width: 100%;
@@ -40,6 +40,8 @@
             display: block;
             box-sizing: border-box;
             cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         .button-container {
             display: flex;
@@ -177,7 +179,7 @@
             },
             {
                 q: "Wann habe ich dich gefragt, ob du meine Frau werden willst? (Jahr)",
-                a: ["2017"]
+                a: ["2020"]
             },
             {
                 q: "Wann genau haben wir erfahren, dass wir mit Matilda schwanger sind? (Datum)",
@@ -242,7 +244,11 @@
                 input.type = "text";
                 input.id = "answer";
                 input.placeholder = "Deine Antwort...";
-                input.onkeypress = handleKeyPress;
+                input.onkeypress = (event) => {
+                    if (event.key === "Enter") {
+                        checkAnswer(input.value);
+                    }
+                };
                 answerButtons.appendChild(input);
             }
 
@@ -252,7 +258,7 @@
 
         function checkAnswer(userAnswer) {
             const question = questions[currentQuestion];
-            const correctAnswers = question.a;
+            const correctAnswers = question.a.map(answer => answer.toLowerCase().trim()); // Antworten in Kleinbuchstaben umwandeln
 
             if (correctAnswers.length === 0 || correctAnswers.includes(userAnswer.toLowerCase().trim())) {
                 document.getElementById("message").innerText = "Richtig! ✅";
@@ -273,12 +279,6 @@
         function showFinalMessage() {
             document.getElementById('quiz-container').classList.add('hidden');
             document.getElementById('final-message').classList.remove('hidden');
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                checkAnswer(document.getElementById("answer").value);
-            }
         }
     </script>
 </body>
