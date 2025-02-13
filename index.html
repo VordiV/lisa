@@ -26,18 +26,26 @@
             transform: scale(0.9);
             animation: fadeIn 0.5s forwards;
         }
-        input, button {
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        button {
             margin-top: 10px;
             padding: 10px;
             width: 100%;
             font-size: 16px;
             display: block;
             box-sizing: border-box;
+            cursor: pointer;
         }
         .button-container {
             display: flex;
             justify-content: space-between;
             margin-top: 10px;
+            gap: 10px;
         }
         .hidden {
             display: none;
@@ -84,10 +92,9 @@
             <div id="progress"></div>
         </div>
         <p id="question" style="font-size: 24px; font-weight: bold;"></p>
-        <input type="text" id="answer" placeholder="Deine Antwort..." onkeypress="handleKeyPress(event)">
-        <div class="button-container">
-            <button onclick="goBack()" id="backButton">Zurück</button>
-            <button onclick="checkAnswer()" id="nextButton">Weiter</button>
+        <img id="question-image" src="" alt="Fragenbild" class="hidden">
+        <div class="button-container" id="answer-buttons">
+            <!-- Antwort-Buttons werden hier dynamisch eingefügt -->
         </div>
         <p class="message" id="message"></p>
     </div>
@@ -101,21 +108,99 @@
 
     <script>
         const questions = [
-            { q: "Wo haben wir uns kennengelernt?", a: ["prater"] },
-            { q: "In welcher Halle genau?", a: ["swing"] },
-            { q: "Was hast du damals bestellt?", a: ["cola light"] },
-            { q: "Erster richtiger gemeinsamer Urlaub (welches Land)?", a: ["türkei"] },
-            { q: "Mit welchem Auto habe ich dich damals in Oostkapelle besucht?", a: ["opel corsa"] },
-            { q: "Welche Farbe hatte der Corsa?", a: ["rot"] },
-            { q: "Wann haben wir uns wiedergefunden? (in welchem Jahr?)", a: ["2017"] },
-            { q: "Wohin sind wir 2017 spontan für einen Tag gefahren?", a: ["zandvoort"] },
-            { q: "PLZ unserer ersten gemeinsamen Wohnung", a: ["44866"] },
-            { q: "An welchem Tag sind wir damals in die USA geflogen?", a: ["15.8.2019", "15.08.2019"] },
-            { q: "In welcher Stadt habe ich damals meine Drohne 'versenkt'?", a: ["san diego", "sandiego"] },
-            { q: "Wie heißt unser erstes Baby?", a: ["trudi"] },
-            { q: "Wie unser zweites Baby?", a: ["matilda"] },
-            { q: "Und unser letztes Baby?", a: ["ferdinand"] },
-            { q: "Warum liebe ich dich wohl so sehr?", a: [] } // Offene Frage, keine spezifische Antwort erforderlich
+            {
+                q: "Wo haben wir uns kennengelernt?",
+                a: ["Prater"],
+                image: "" // Bild-URL (optional)
+            },
+            {
+                q: "Weißt du auch noch in welcher Halle?",
+                a: ["Swing"],
+                image: "https://www.prater.de/projects/193/files/userfiles/img/mod_media2/202202241425_d92d7.jpg" // Bild-URL (optional)
+            },
+            {
+                q: "oder was du bestellt hast?",
+                a: ["Meine Nummer ;-)"],
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQOfZ9PeEnc-xBVpsS7g8k9ZnnFddnogMRXQ&s" // Bild-URL (optional)
+            },
+            {
+                q: "Was haben wir damals beinahe wöchentlich gemacht?",
+                a: ["Kino"],
+                image: "" // Bild-URL (optional)
+                choices: ["Sport", "Kino"] // Zwei Antwortmöglichkeiten
+
+            },
+            {
+                q: "Unser erster gemeinsamer All-inklusive Urlaub ging wohin?",
+                a: ["Türkei"]
+            },
+            {
+                q: "…wofür haben wir damals einen Haufen Geld ausgegeben?",
+                a: ["Fotos"],
+                choices: ["Gefälschte Trikots", "Fotos", "Schmuck"] // Zwei Antwortmöglichkeiten
+
+            },
+            {
+                q: "Mit welchem Auto habe ich dich damals von meinen Fahrkünsten überzeugen können?",
+                a: ["Opel Corsa"]
+            },
+            {
+                q: "und wogegen bin ich immer gefahren? (mach ich immer so!)",
+                a: ["Pöller"],
+                choices: ["Andere Autos", "Grünenwähler", "Pöller"] // Zwei Antwortmöglichkeiten
+            },
+            {
+                q: "In welchem Jahr haben wir wieder zueinander gefunden?",
+                a: ["2017"]
+            },
+            {
+                q: "Wer hat uns dann auf unseren ersten Spaziergang in 2017 begleitet?",
+                a: ["Bärbel"],
+                choices: ["Deine Mutter", "Bärbel", "Lucky"] // Zwei Antwortmöglichkeiten
+            },
+            {
+                q: "Wo war das?",
+                a: ["Zandvoort"], // Richtige Antwort
+                image: "zandvoort.JPG", // Beispielbild
+                choices: ["Amsterdam", "Thale", "Zandvoort"] // Zwei Antwortmöglichkeiten
+            },
+                    {
+                q: "...oder das?",
+                a: ["Thale"], // Richtige Antwort
+                image: "thale.JPG", // Beispielbild
+                choices: ["Oostkapelle", "Thale", "Zandvoort"] // Zwei Antwortmöglichkeiten
+            },
+        {
+                q: "Hausnummer unserer ersten, gemeinsamen Wohnung?",
+                a: ["34"]
+            },
+         {
+                q: "Was ist die längste Strecke, die wir mal zusammen an einem Tag mit dem Fahrrad gefahen sind? (in km)",
+                a: ["28"]
+            },
+         {
+                q: "Wann habe ich dich gefragt, ob du meine Frau werden willst? (Jahr)",
+                a: ["2017"]
+            },
+         {
+                q: "Wann genau haben wir erfahren, dass wir mit Matilda schwanger sind? (Datum)",
+                a: ["31.07.2020"],
+                image: "matilda.jpg", // Beispielbild
+            },
+         {
+                q: "Wie viel Gramm hat unser Farmer an Tag 0 gewogen?",
+                a: ["3520"]
+            },
+         {
+                q: "Bitte ersetzen: Lisa, du bist der Mensch in meinem Leben, der mein (xxxx) in einem Moment schneller und im nächsten Moment langsamer schlagen lässt",
+                a: ["Herz"]
+            },
+                    
+            {
+                q: "...und warum liebe ich dich wohl so sehr?",
+                a: [], // Offene Frage
+                image: "" // Bild-URL (optional)
+            }
         ];
         
         let currentQuestion = 0;
@@ -132,31 +217,52 @@
                 showFinalMessage();
                 return;
             }
-            document.getElementById("question").innerText = questions[currentQuestion].q;
-            document.getElementById("answer").value = "";
+            const question = questions[currentQuestion];
+            document.getElementById("question").innerText = question.q;
             document.getElementById("message").innerText = "";
+
+            // Bild anzeigen, falls vorhanden
+            const imageElement = document.getElementById("question-image");
+            if (question.image) {
+                imageElement.src = question.image;
+                imageElement.classList.remove("hidden");
+            } else {
+                imageElement.classList.add("hidden");
+            }
+
+            // Antwort-Buttons anzeigen
+            const answerButtons = document.getElementById("answer-buttons");
+            answerButtons.innerHTML = ""; // Vorherige Buttons löschen
+
+            if (question.choices) {
+                question.choices.forEach(choice => {
+                    const button = document.createElement("button");
+                    button.innerText = choice;
+                    button.onclick = () => checkAnswer(choice);
+                    answerButtons.appendChild(button);
+                });
+            } else {
+                // Fallback für offene Fragen
+                const input = document.createElement("input");
+                input.type = "text";
+                input.id = "answer";
+                input.placeholder = "Deine Antwort...";
+                input.onkeypress = handleKeyPress;
+                answerButtons.appendChild(input);
+            }
+
+            // Fortschrittsbalken aktualisieren
             document.getElementById("progress").style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
         }
 
-        function checkAnswer() {
-            if (currentQuestion >= questions.length) return;
+        function checkAnswer(userAnswer) {
+            const question = questions[currentQuestion];
+            const correctAnswers = question.a;
 
-            const inputField = document.getElementById("answer");
-            const userAnswer = document.getElementById("answer").value.toLowerCase().trim();
-            const correctAnswers = questions[currentQuestion].a;
-
-            // Wenn es sich um die offene Frage handelt, zeige die finale Nachricht
-            if (currentQuestion === questions.length - 1) {
-                showFinalMessage();
-                return;
-            }
-
-            if (correctAnswers.length > 0 && correctAnswers.some(ans => ans.toLowerCase().trim() === userAnswer)) {
+            if (correctAnswers.length === 0 || correctAnswers.includes(userAnswer.toLowerCase().trim())) {
                 document.getElementById("message").innerText = "Richtig! ✅";
-                inputField.style.borderColor = "green";
                 document.getElementById("message").classList.add("correct");
                 setTimeout(() => {
-                    inputField.style.borderColor = "";
                     document.getElementById("message").innerText = "";
                     document.getElementById("message").classList.remove("correct");
                     currentQuestion++;
@@ -165,8 +271,7 @@
                 attempts = 0;
             } else {
                 attempts++;
-                document.getElementById("message").innerText = attempts >= 3 ? `Die richtige Antwort ist: ${correctAnswers.length > 0 ? correctAnswers[0] : 'Keine Antwort gefunden'}` : 'Falsche Antwort, versuche es noch einmal!';
-                inputField.style.borderColor = "red";
+                document.getElementById("message").innerText = attempts >= 3 ? `Die richtige Antwort ist: ${correctAnswers[0]}` : 'Falsche Antwort, versuche es noch einmal!';
             }
         }
 
@@ -175,18 +280,9 @@
             document.getElementById('final-message').classList.remove('hidden');
         }
 
-        function goBack() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                displayQuestion();
-            } else {
-                document.getElementById("message").innerText = "Du bist bereits bei der ersten Frage!";
-            }
-        }
-
         function handleKeyPress(event) {
             if (event.key === "Enter") {
-                checkAnswer();
+                checkAnswer(document.getElementById("answer").value);
             }
         }
     </script>
