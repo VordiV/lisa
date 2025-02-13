@@ -267,12 +267,21 @@
                     document.getElementById("message").innerText = "";
                     document.getElementById("message").classList.remove("correct");
                     currentQuestion++;
+                    attempts = 0; // Versuche zurücksetzen
                     displayQuestion();
                 }, 1500);
-                attempts = 0;
             } else {
                 attempts++;
-                document.getElementById("message").innerText = attempts >= 3 ? `Die richtige Antwort ist: ${correctAnswers[0]}` : 'Falsche Antwort, versuche es noch einmal!';
+                if (attempts >= 3) {
+                    document.getElementById("message").innerText = `Die richtige Antwort ist: ${correctAnswers[0]}`;
+                    setTimeout(() => {
+                        currentQuestion++;
+                        attempts = 0; // Versuche zurücksetzen
+                        displayQuestion();
+                    }, 1500);
+                } else {
+                    document.getElementById("message").innerText = 'Falsche Antwort, versuche es noch einmal!';
+                }
             }
         }
 
